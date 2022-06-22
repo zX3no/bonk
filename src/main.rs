@@ -21,11 +21,10 @@ fn main() {
     let new_hash = new_hash.join("\n");
 
     if new_hash != old_hash {
-        println!("Rebuilding..");
-
         if build().is_err() {
             return;
         };
+        println!("Building...");
     }
 
     //Run the program
@@ -39,13 +38,19 @@ fn main() {
 }
 
 fn build() -> Result<(), ()> {
-    let output = Command::new("gcc")
-        .args(&["src/main.cpp", "-o", "build/main.exe"])
-        .output()
+    //Read the build command from a file
+    let crun = fs::read_to_string("crun").unwrap();
+    let command: Vec<&str> = crun.split(' ').clone().collect();
+    if command.len() < 1 {
+        return Err(());
+    }
+
+    let child = Command::new(command[0])
+        .args(command.get(1..).unwrap_or_default())
+        .spawn()
         .unwrap();
 
-    std::io::stdout().write_all(&output.stdout).unwrap();
-    std::io::stderr().write_all(&output.stderr).unwrap();
+    let output = child.wait_with_output().unwrap();
 
     if output.status.success() {
         Ok(())
