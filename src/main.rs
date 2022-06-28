@@ -8,8 +8,16 @@ use std::{
     process::Command,
     time::{Duration, Instant},
 };
+//TODO: Output file must be called main.exe
+//Specifiy the output file name and path in .bonk
 
 fn main() {
+    //Make sure we are reading a valid project
+    let build_file = match fs::read_to_string(".bonk") {
+        Ok(file) => file,
+        Err(_) => return println!("\x1b[31mCould not read \x1b[0m`.bonk`"),
+    };
+
     //Collect all the files
     let mut files = collect_files();
     files.sort();
@@ -23,7 +31,6 @@ fn main() {
 
     if new_hash != old_hash {
         //Read the build command from a file
-        let build_file = fs::read_to_string(".bonk").unwrap();
         let command: Vec<&str> = build_file.split(' ').clone().collect();
 
         match run(command) {
@@ -52,6 +59,8 @@ fn run(command: Vec<&str>) -> Result<Duration, ()> {
     if command.len() < 1 {
         return Err(());
     }
+
+    fs::create_dir("build").ok();
 
     let now = Instant::now();
     let child = Command::new(command[0])
