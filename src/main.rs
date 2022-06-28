@@ -6,6 +6,7 @@ use std::{
     io::{Cursor, Write},
     path::{Path, PathBuf},
     process::Command,
+    time::{Duration, Instant},
 };
 
 fn main() {
@@ -21,10 +22,20 @@ fn main() {
     let new_hash = new_hash.join("\n");
 
     if new_hash != old_hash {
-        if build().is_err() {
-            return;
-        };
-        println!("Building...");
+        //Read the build command from a file
+        let build_file = fs::read_to_string(".bonk").unwrap();
+        let command: Vec<&str> = build_file.split(' ').clone().collect();
+
+        match run(command) {
+            //clear: \x1b[0m
+            //bold: \x1b[1m
+            //green: \x1b[32m
+            Ok(time) => println!(
+                "{}\nFinished in \x1b[1m\x1b[32m{:#?}\n\x1b[0m",
+                build_file, time
+            ),
+            Err(_) => return,
+        }
     }
 
     //Run the program
@@ -37,14 +48,12 @@ fn main() {
     fs::write("build/hash", new_hash).unwrap();
 }
 
-fn build() -> Result<(), ()> {
-    //Read the build command from a file
-    let crun = fs::read_to_string("crun").unwrap();
-    let command: Vec<&str> = crun.split(' ').clone().collect();
+fn run(command: Vec<&str>) -> Result<Duration, ()> {
     if command.len() < 1 {
         return Err(());
     }
 
+    let now = Instant::now();
     let child = Command::new(command[0])
         .args(command.get(1..).unwrap_or_default())
         .spawn()
@@ -53,7 +62,7 @@ fn build() -> Result<(), ()> {
     let output = child.wait_with_output().unwrap();
 
     if output.status.success() {
-        Ok(())
+        Ok(now.elapsed())
     } else {
         Err(())
     }

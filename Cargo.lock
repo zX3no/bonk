@@ -43,6 +43,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "bonk"
+version = "0.1.0"
+dependencies = [
+ "blake3",
+ "hex",
+ "jwalk",
+ "memmap2",
+ "rayon",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -127,17 +138,6 @@ checksum = "8ff1f980957787286a554052d03c7aee98d99cc32e09f6d45f0a814133c87978"
 dependencies = [
  "cfg-if",
  "once_cell",
-]
-
-[[package]]
-name = "crun"
-version = "0.1.0"
-dependencies = [
- "blake3",
- "hex",
- "jwalk",
- "memmap2",
- "rayon",
 ]
 
 [[package]]
