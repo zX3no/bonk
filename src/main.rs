@@ -23,7 +23,8 @@ fn main() {
     files.sort();
 
     //Hash each of them and save them
-    let new_hash: Vec<String> = files.par_iter().map(|file| hash(file)).collect();
+    let mut new_hash: Vec<String> = files.par_iter().map(|file| hash(file)).collect();
+    new_hash.push(hash(".bonk"));
 
     //Compare the new hash with old hash
     let old_hash = fs::read_to_string("build/hash").unwrap_or(String::new());
